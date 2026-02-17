@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luggage ID | Bouklis</title>
+<style>
+:root {
+--primary-color: #2c3e50;
+--accent-color: #3498db;
+--success-color: #27ae60;
+--bg-current: linear-gradient(135deg, #005bae 0%, #ffffff 100%);
+}
+
+body {
+font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+background: var(--bg-current);
+background-attachment: fixed;
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+margin: 0;
+padding: 20px;
+color: #2d3436;
+transition: background 0.8s ease;
+overflow-x: hidden; /* Για να μην φαίνεται το panel όταν είναι κλειστό */
+}
+
+/* Κεντρική Κάρτα */
+.card {
+background: rgba(255, 255, 255, 0.85);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+padding: 40px 30px;
+border-radius: 30px;
+box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+text-align: center;
+max-width: 400px;
+width: 100%;
+position: relative;
+border: 1px solid rgba(255,255,255,0.4);
+z-index: 1;
+}
+
+.language-selector {
+position: absolute;
+top: 20px;
+right: 20px;
+}
+
+select {
+padding: 8px 12px;
+border-radius: 20px;
+border: none;
+background: rgba(0, 0, 0, 0.05);
+font-weight: bold;
+cursor: pointer;
+}
+
+.luggage-icon {
+font-size: 60px;
+margin-bottom: 10px;
+display: inline-block;
+animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(-10px); }
+}
+
+h2 { font-size: 28px; margin: 0 0 20px 0; color: var(--primary-color); }
+
+.info-box {
+background: rgba(255, 255, 255, 0.6);
+padding: 15px;
+border-radius: 15px;
+margin-bottom: 25px;
+text-align: left;
+border-left: 5px solid var(--accent-color);
+}
+
+.actions { display: flex; flex-direction: column; gap: 12px; }
+
+.btn {
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 16px;
+border-radius: 15px;
+text-decoration: none;
+font-weight: bold;
+color: white;
+cursor: pointer;
+border: none;
+font-size: 16px;
+transition: 0.3s;
+}
+
+.btn-call { background-color: var(--success-color); }
+.btn-email { background-color: var(--accent-color); }
+.btn:hover { transform: scale(1.02); opacity: 0.9; }
+
+/* Side Panel Style */
+.side-panel {
+position: fixed;
+top: 0;
+right: -100%; /* Κρυμμένο στα δεξιά */
+width: 350px;
+max-width: 80%;
+height: 100%;
+background: white;
+box-shadow: -10px 0 30px rgba(0,0,0,0.2);
+z-index: 100;
+transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+padding: 40px 20px;
+display: flex;
+flex-direction: column;
+align-items: center;
+text-align: center;
+}
+
+.side-panel.active {
+right: 0; /* Εμφάνιση */
+}
+
+.close-btn {
+position: absolute;
+top: 20px;
+left: 20px;
+font-size: 24px;
+cursor: pointer;
+background: none;
+border: none;
+color: #636e72;
+}
+
+.panel-content { margin-top: 50px; width: 100%; }
+
+.panel-icon { font-size: 50px; margin-bottom: 20px; }
+
+.confirm-btn {
+margin-top: 25px;
+width: 100%;
+padding: 15px;
+border-radius: 10px;
+background: var(--primary-color);
+color: white;
+text-decoration: none;
+display: block;
+font-weight: bold;
+}
+
+/* Overlay για να θολώνει το υπόλοιπο site */
+.overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0,0,0,0.3);
+display: none;
+z-index: 90;
+}
+.overlay.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+
+<div class="card">
+<div class="language-selector">
+<select id="langSelect" onchange="updateContent()">
+<option value="el">🇬🇷 EL</option>
+<option value="en">🇬🇧 EN</option>
+<option value="de">🇩🇪 DE</option>
+<option value="fr">🇫🇷 FR</option>
+<option value="es">🇪🇸 ES</option>
+</select>
+</div>
+
+<div class="luggage-icon">🧳</div>
+<h1 id="header" style="font-size: 14px; color: #636e72;">Ιδιοκτήτης Αποσκευής</h1>
+<h2 id="name">Μπουκλής Θεμιστοκλής</h2>
+
+<div class="info-box">
+<span id="location" style="font-weight: bold;">Γανόχωρα, Πιερίας, Ελλάδα</span>
+</div>
+
+<div class="actions">
+<button onclick="openPanel('call')" class="btn btn-call">📞 <span id="btn-call-text">Κλήση</span></button>
+<button onclick="openPanel('email')" class="btn btn-email">✉️ <span id="btn-email-text">Email</span></button>
+</div>
+</div>
+
+<div id="sidePanel" class="side-panel">
+<button class="close-btn" onclick="closePanel()">✕</button>
+<div class="panel-content">
+<div id="panelIcon" class="panel-icon"></div>
+<h3 id="panelTitle">Τίτλος</h3>
+<p id="panelDesc">Περιγραφή</p>
+<a id="panelActionBtn" href="#" class="confirm-btn">Επιβεβαίωση</a>
+</div>
+</div>
+
+<script>
+const content = {
+el: {
+header: "Ιδιοκτήτης Αποσκευής", name: "Μπουκλής Θεμιστοκλής", location: "Γανόχωρα, Πιερίας, Ελλάδα",
+call: "Κλήση", email: "Email",
+panelCallTitle: "Τηλεφωνική Κλήση", panelCallDesc: "Είστε έτοιμοι να καλέσετε τον ιδιοκτήτη στο 6947533120;",
+panelEmailTitle: "Αποστολή Email", panelEmailDesc: "Αποστολή μηνύματος στο bouklisthemistoklis@gmail.com",
+confirm: "Συνέχεια", bg: "linear-gradient(135deg, #005bae 0%, #ffffff 100%)"
+},
+en: {
+header: "Luggage Owner", name: "Bouklis Themistoklis", location: "Ganochora, Pieria, Greece",
+call: "Call Me", email: "Email Me",
+panelCallTitle: "Phone Call", panelCallDesc: "Are you ready to call the owner at +30 6947533120?",
+panelEmailTitle: "Send Email", panelEmailDesc: "Send a message to bouklisthemistoklis@gmail.com",
+confirm: "Proceed", bg: "linear-gradient(135deg, #cf142b 0%, #ffffff 50%, #00247d 100%)"
+},
+de: {
+header: "Besitzer", name: "Bouklis Themistoklis", location: "Ganochora, Pieria, Griechenland",
+call: "Anrufen", email: "E-Mail",
+panelCallTitle: "Anrufen", panelCallDesc: "Möchten Sie den Besitzer unter 6947533120 anrufen?",
+panelEmailTitle: "E-Mail senden", panelEmailDesc: "E-Mail an bouklisthemistoklis@gmail.com senden",
+confirm: "Bestätigen", bg: "linear-gradient(135deg, #000000 0%, #dd0000 50%, #ffce00 100%)"
+},
+fr: {
+header: "Propriétaire", name: "Bouklis Themistoklis", location: "Ganochora, Pieria, Grèce",
+call: "Appeler", email: "Email",
+panelCallTitle: "Appel téléphonique", panelCallDesc: "Appeler le propriétaire au 6947533120?",
+panelEmailTitle: "Envoyer un Email", panelEmailDesc: "Envoyer un message à bouklisthemistoklis@gmail.com",
+confirm: "Confirmer", bg: "linear-gradient(135deg, #002395 0%, #ffffff 50%, #ed2939 100%)"
+},
+es: {
+header: "Propietario", name: "Bouklis Themistoklis", location: "Ganochora, Pieria, Grecia",
+call: "Llamar", email: "Email",
+panelCallTitle: "Llamada", panelCallDesc: "¿Llamar al dueño al 6947533120?",
+panelEmailTitle: "Enviar Email", panelEmailDesc: "Enviar correo a bouklisthemistoklis@gmail.com",
+confirm: "Confirmar", bg: "linear-gradient(135deg, #aa151b 0%, #f1bf00 50%, #aa151b 100%)"
+}
+};
+
+function updateContent() {
+const lang = document.getElementById('langSelect').value;
+const d = content[lang];
+document.getElementById('header').innerText = d.header;
+document.getElementById('name').innerText = d.name;
+document.getElementById('location').innerText = d.location;
+document.getElementById('btn-call-text').innerText = d.call;
+document.getElementById('btn-email-text').innerText = d.email;
+document.body.style.background = d.bg;
+}
+
+function openPanel(type) {
+const lang = document.getElementById('langSelect').value;
+const d = content[lang];
+const panel = document.getElementById('sidePanel');
+const overlay = document.getElementById('overlay');
+
+if(type === 'call') {
+document.getElementById('panelIcon').innerText = "📞";
+document.getElementById('panelTitle').innerText = d.panelCallTitle;
+document.getElementById('panelDesc').innerText = d.panelCallDesc;
+document.getElementById('panelActionBtn').href = "tel:+306947533120";
+} else {
+document.getElementById('panelIcon').innerText = "✉️";
+document.getElementById('panelTitle').innerText = d.panelEmailTitle;
+document.getElementById('panelDesc').innerText = d.panelEmailDesc;
+document.getElementById('panelActionBtn').href = "mailto:bouklisthemistoklis@gmail.com";
+}
+document.getElementById('panelActionBtn').innerText = d.confirm;
+
+panel.classList.add('active');
+overlay.classList.add('active');
+}
+
+function closePanel() {
+document.getElementById('sidePanel').classList.remove('active');
+document.getElementById('overlay').classList.remove('active');
+}
+
+window.onload = updateContent;
+</script>
+</body>
+</html>
